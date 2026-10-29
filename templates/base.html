@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Stock Price Predictor{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('main') }}">
+      <span class="logo" aria-hidden="true">&#9650;</span> Stock Price Predictor
+    </a>
+    <span class="tag">Ridge regression &middot; Python &middot; Flask</span>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    Educational project &mdash; not financial advice. The model estimates a day's
+    <em>closing</em> price from that day's open, high, low and volume; it does not forecast the future.
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

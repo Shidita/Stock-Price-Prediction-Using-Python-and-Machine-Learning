@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+{% set sub = submitted or {} %}
+<section class="grid">
+  <!-- ---------------- Inputs ---------------- -->
+  <form class="card" id="predict-form" method="post" action="{{ url_for('predict') }}" novalidate>
+    <h2>1. Enter market data</h2>
+
+    <label class="lbl" for="ticker">Ticker symbol <span class="hint">(optional – loads live data and trains a model on it)</span></label>
+    <div class="row">
+      <input id="ticker" name="ticker" type="text" placeholder="AAPL, MSFT, TCS.NS, GC=F" autocomplete="off"
+             value="{{ sub.get('ticker', '') }}" maxlength="15">
+      <button type="button" class="btn secondary" id="load-btn">Load live data</button>
+    </div>
+    <div class="chips" aria-label="Quick tickers">
+      <button type="button" class="chip" data-ticker="AAPL">AAPL</button>
+      <button type="button" class="chip" data-ticker="MSFT">MSFT</button>
+      <button type="button" class="chip" data-ticker="TSLA">TSLA</button>
+      <button type="button" class="chip" data-ticker="TCS.NS">TCS.NS</button>
+      <button type="button" class="chip" data-ticker="RELIANCE.NS">RELIANCE.NS</button>
+      <button type="button" class="chip" data-ticker="GC=F">Gold</button>
+    </div>
+
+    {% for name, step in [('Open', '0.01'), ('High', '0.01'), ('Low', '0.01'), ('Volume', '1')] %}
+    <div class="field">
+      <label class="lbl" for="{{ name }}">{{ name }}</label>
+      <input id="{{ name }}" name="{{ name }}" type="number" inputmode="decimal" step="{{ step }}" min="0"
+             value="{{ sub.get(name, defaults[name]) }}" required>
+      <input class="slider" type="range" id="{{ name }}-range" aria-label="{{ name }} slider" tabindex="-1">
+    </div>
+    {% endfor %}
+
+    <label class="check"><input type="checkbox" id="auto" checked> Live what-if: re-predict as I move the sliders</label>
+
+    <div class="error" id="error" role="alert" {% if not error %}hidden{% endif %}>{{ error or '' }}</div>
+
+    <div class="row actions">
+      <button type="submit" class="btn primary" id="predict-btn">Predict closing price</button>
+      <button type="button" class="btn ghost" id="sample-btn">Sample</button>
+    </div>
+  </form>
+
+  <!-- ---------------- Result + chart ---------------- -->
+  <div class="stack">
+    <section class="card result" id="result-card" aria-live="polite">
+      <h2>2. Predicted close</h2>
+      <div class="big" id="pred">&mdash;</div>
+      <div class="delta" id="delta"></div>
+      <div class="meta" id="model-info">Press <strong>Predict</strong> to see an estimate.</div>
+      <div class="metrics" id="metrics" hidden></div>
+    </section>
+
+    <section class="card">
+      <h2>3. Price history</h2>
+      <div class="chart-wrap">
+        <canvas id="chart" aria-label="Price history chart" role="img"></canvas>
+        <p class="placeholder" id="chart-placeholder">Load a ticker to see its last 120 trading days with your prediction.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row between">
+        <h2>Recent predictions</h2>
+        <button type="button" class="btn ghost small" id="clear-history">Clear</button>
+      </div>
+      <div class="table-wrap"><table class="table" id="history-table">
+        <thead><tr><th>Model</th><th>Open</th><th>High</th><th>Low</th><th>Volume</th><th>Predicted close</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p class="placeholder" id="history-empty">Nothing yet.</p>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>window.SPP_DEFAULTS = {{ defaults | tojson }};</script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

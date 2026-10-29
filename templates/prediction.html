@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Prediction – Stock Price Predictor{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h2>Predicted closing price</h2>
+  <div class="big">{{ '{:,.2f}'.format(result.prediction) }}</div>
+  <div class="delta {{ 'up' if result.change >= 0 else 'down' }}">
+    {{ '+' if result.change >= 0 else '' }}{{ '{:,.2f}'.format(result.change) }}
+    ({{ '+' if result.change_pct >= 0 else '' }}{{ result.change_pct }}%) vs. open
+  </div>
+  <table class="table">
+    <tbody>
+      {% for k in ['Open', 'High', 'Low', 'Volume'] %}
+      <tr><th>{{ k }}</th><td>{{ '{:,.2f}'.format(result.inputs[k]) }}</td></tr>
+      {% endfor %}
+      <tr><th>Model</th><td>{{ 'Built-in (Ridge)' if result.model == 'default' else result.model + ' (trained live)' }}</td></tr>
+    </tbody>
+  </table>
+  {% if result.note %}<p class="meta">{{ result.note }}</p>{% endif %}
+  <a class="btn primary" href="{{ url_for('main') }}">&larr; Try another</a>
+</section>
+{% endblock %}

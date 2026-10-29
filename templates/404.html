@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Not found – Stock Price Predictor{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h2>{{ message or "Page not found" }}</h2>
+  <p class="meta">That page doesn't exist or something went wrong.</p>
+  <a class="btn primary" href="{{ url_for('main') }}">&larr; Back to the predictor</a>
+</section>
+{% endblock %}
